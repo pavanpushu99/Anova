@@ -1,0 +1,204 @@
+---
+title: 'STAT 631 : Homework 2'
+author: "Pavan Malapati"
+date: "2024-02-29"
+output: pdf_document
+---
+
+1.(Exercise 2.1) We wish to evaluate a new textbook for a statistics class. There are seven sections; four are chosen at random to receive the new book, three receive the old book. At the end of the semester, student evaluations show the following percentages of students rate the textbook as “very good” or “excellent”:Find the one-sided randomization p-value for testing the null hypothesis that the two books are equivalent versus the alternative that the new book is better (receives higher scores).
+
+Solution :
+
+Hypothesis :
+
+Null Hypothesis (H0): The mean of the sections using the new textbook is equal to the mean of the sections using the old textbook.
+
+Alternative Hypothesis (H1): The mean of the sections using the new textbook is greater than the mean of the sections using the old textbook.
+
+```{r}
+# Split the data into new books and old books
+new_books<-c(46,45,32,56)
+old_books<-c(37,47,62)
+```
+
+Checking Normality Assumptions:
+
+```{r}
+qqnorm(new_books)
+qqline(new_books,col="red")
+```
+```{r}
+qqnorm(old_books)
+qqline(old_books,col="green")
+```
+since the data is less we can't conclude that it doesn't satisfy normality assumptions so its better to use 2 sample permutation. I am going to use 2 sample permutation test as well as t test and compare the p-value.
+
+```{r}
+shapiro.test(new_books)
+shapiro.test(old_books)
+```
+
+Since p-values are greater than 0.05 in the Shapiro-Wilk normality tests , we can say that the new books and old books datasets both  have a normal distribution.
+
+```{r}
+boxplot(old_books)
+boxplot(new_books)
+```
+```{r}
+var.test(old_books,new_books)
+```
+
+According to the F test, the variances of the old_books and new_books datasets do not significantly differ from one another (F = 1.6337, p-value = 0.6623), which means that the assumption that the two groups' variances are same cannot be rejected.
+
+2 sample permutation test
+
+```{r}
+# Compute the test statistic
+th<-mean(new_books)-mean(old_books) 
+
+# Pool the data
+pd<-c(new_books,old_books)
+
+# Number of simulations
+nsim<-5000
+
+# Initialize the results vector
+results<-numeric(nsim)
+
+# Set the seed for reproducibility
+set.seed(10)
+
+# Simulate randomization
+for(mc in 1:nsim){
+  id<-sample(1:length(pd),length(new_books),replace = FALSE)
+  results[mc]<-mean(pd[id])-mean(pd[-id])
+}
+
+# Compute and print p-value
+mean(results>=th)
+```
+
+2 sample t test
+
+```{r}
+# Perform a two-sample t-test
+result<-t.test(new_books,old_books,var.equal = TRUE)
+
+# print the result
+result
+```
+
+In both the cases the p-value is approximately equal 
+
+Decision and Conclusion :
+In both the cases, p-value is greater than 0.05, we fail to reject the null hypothesis, which means that the scores two books are almost equivalent. There is no enough data to prove that the new book receives high scores compared to the old book.
+
+
+2.(Exercise 2.2) Dairy cows are bred by selected bulls, but not all cows become pregnant at the
+first service. A drug is proposed that is hoped to increase the bulls fertility. Each of seven
+bulls will be bred to 2 herds of 100 cows each (a total of 14 herds). For one herd (selected
+randomly) the bulls will be given the drug, while no drug will be given for the second herd.
+Assume the drug has no residual effect. The response we observe for each bull is the number
+of impregnated cows under drug therapy minus the number of impregnated cows without the
+drug. The observed differences are -1, 6, 4, 6, 2, -3, 5. Find the p-value for the randomization
+test of the null hypothesis that the drug has no effect versus a one-sided alternative (the drug
+improves fertility).
+
+Solution :
+
+Null Hypothesis (H0): The drug has no effect on fertility. The mean difference between the impregnated cows under therapy and impregnated cows without therapy is equal or less than zero.
+
+Alternative Hypothesis (H1): The drug improves the fertility. The mean difference between the impregnated cows under therapy and impregnated cows without therapy is greater than zero.
+
+
+```{r}
+# Define the observed differences
+diff<-c(-1,6,4,6,2,-3,5)
+```
+
+Checking Normality Assumptions:
+
+```{r}
+qqnorm(diff)
+qqline(diff,col="red")
+```
+The graph shows normali, All the points just slightly deviated from the normality assumptions since the data is small it is negotiable.
+
+```{r}
+shapiro.test(diff)
+```
+As the p value is greater than 0.05 , we can say that the normality is satisfied.
+
+```{r}
+boxplot(diff)
+```
+The boxplot indicates a generally symmetric data distribution with a central tendency around 2 and no outliers.
+
+```{r}
+# Perform the one sample t-test
+result2<-t.test(diff,alternative="greater",conf.level=0.95)
+
+#Print the result
+result2
+```
+
+Decision and Conclusion :
+Since p-value is less than 0.05, we reject the null hypothesis, which means that the drug improves the fertility of the cows.
+
+3.(Problem 3.2) Scientists are interested in whether the energy costs involved in reproduction
+affect longevity. In this experiment, 125 male fruit flies were divided at random into five sets of
+25. In one group, the males were kept by themselves. In two groups, the males were supplied
+with one or eight receptive virgin female fruit flies per day. In the final two groups, the males
+were supplied with one or eight unreceptive (pregnant) female fruit flies per day. Other than
+the number and type of companions, the males were treated identically. The longevity of the
+flies was observed. Data from Hanley and Shapiro (1994).Analyze these data to test the null hypothesis that reproductive activity does not affect longevity.Write a report on your analysis.
+
+Solution :
+
+Null Hypothesis (H0): The reproductive activity has no effect on the longevity of male fruit flies. The mean difference between the 5 groups is equal to zero.
+
+Alternative Hypothesis (H1): The reproductive activity does effect the longevity of male fruit flies. There is a significant mean difference between the 5 groups
+
+```{r}
+#load the data into 'ecosts' variable
+ecosts<-read.table("pr3.2",header=TRUE)
+```
+
+Checking Assumptions:
+```{r}
+qqnorm(ecosts$trt)
+qqline(ecosts$trt,col="red")
+```
+The plot shows that the data slightly follows normal distribution.Alsoi shows the data is divided into 5 levels.
+
+```{r}
+shapiro.test(ecosts$trt)
+```
+The shapiro test shows that the data does not have normality ,since the p value is less than 0.05.
+
+```{r}
+boxplot(ecosts$trt)
+```
+
+```{r}
+# Perform Anova to test the effect of reproductive activity on longevity
+result3<-aov(days~trt,data=ecosts)
+
+#Display the Anova test Result
+anova(result3)
+```
+
+Anova Table Breakdown
+
+Degrees of Freedom(Df):The degrees of freedom (Df) for the treatment ("trt") is presented as 1, which may seem unusual considering the experiment's division into five groups. This designation, however, accurately captures the cumulative impact of reproductive activity across all groups within one statistical model, rather than isolating each group's effect.The degrees of freedom for residuals is 123, which is calculated as the total number of observations minus the number of groups
+
+Sum of Squares (Sum Sq): This represents the total variance in the data. The treatment's Sum Sq (7862.4) quantifies the variance in longevity due to reproductive activity, while the residuals' Sum Sq (30390.4) accounts for variance within groups not attributed to the treatment.
+
+Mean Square (Mean Sq): Calculated by dividing the Sum of Squares by the corresponding Degrees of Freedom, this metric averages the variance. For the treatment, it illustrates the average variance in longevity due to reproductive activity, while for residuals, it represents the average variance within groups.
+
+F value: The ratio of the treatment's Mean Square to the residuals' Mean Square, standing at 31.822, signifies the magnitude of the treatment effect relative to the variability within groups. A higher F value suggests a significant effect of the treatment on the outcome.
+
+Pr(>F) (p-value): With a value of 1.101e-07, this extremely low p-value strongly indicates that the observed differences in longevity due to reproductive activity are statistically significant and unlikely to be due to chance.
+
+Decision and Conclusion :
+Since p-value is less than 0.05, we reject the null hypothesis, which means that the reproductive activity does effect the longevity of male fruit flies and There is a significant mean difference between the 5 groups.

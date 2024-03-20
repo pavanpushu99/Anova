@@ -1,0 +1,67 @@
+---
+title: 'STAT 631 : Homework 1'
+author: "Pavan Malapati"
+date: "2024-02-10"
+output: pdf_document
+---
+1. Here is the description of an experiment.
+A cornfield is divided into a certain number of subfields. Each part is treated with a different
+fertilizer (four types) and varying amounts of water (either standard or enhanced irrigation) to
+determine which produces the most corn. To ensure robust results, five subfields are treated
+with one of these treatments, and ten corn plants will be selected from each subfield to measure
+productivity.
+Identify the following items for this experiment:
+(a) factors:The factors of this experiments are *Fertilzer* and *water*
+(b) number of levels in each factor: THere are total *4 levels* for the fertilizer factor and *2 levels* for the water factor
+(c) treatments:Each combination of 4 levels fertilizer and 2 levels represents a treatment.
+(d) total number of treatments: The total number of treatments are *8*
+(e) experimental units:Every subfield of the cornfield are considered as treatment unit
+(f) total number of experimental units:The total number of subfields are *5 subfields*
+(g) measurement units:The measurement units are individual corn plants from each subfield.
+(h) total number of measurement units:There are total *400 measurement units*
+(i) number of replication:There are total *5 replications* for each treatment
+
+2.Photoresist is a light-sensitive material applied to semiconductor wafers
+so that the circuit pattern can be imaged on to the wafer. After application, the coated
+wafers are baked to remove the solvent in the photoresist mixture and to harden the resist.
+Here are measurements of photoresist thickness (in kA) for eight wafers baked at two different
+temperatures. Assume that all of the runs were made in random order.
+```{r}
+library(readr)
+w <- read.csv("wafers.csv")
+```
+a) Is there evidence to support the claim that the higher baking temperature results in wafers with a different mean photoresist thickness? 
+Solution : *Hypothesis Testing *
+*Step 1 : Define Hypothesis* 
+Null Hypothesis(H0): The mean thickness is same at both temperatures.
+Alternative Hypothesis(Ha): The mean thickness is different at both temperatures.
+*Step 2 :Check Assumptions*
+While checking the assumptions, All runs were made in random error.
+*Step 3 :Calculate Test Statistic*
+```{r}
+t.test(w$high,w$low,var.equal = TRUE,conf.level = 0.95)
+```
+*Step 4 : Comparing P-Value :*
+p value = 0.018
+*Step 5 : Decision and Conclusion :* 
+Since P value is less than alpha i.e. 0.05 we reject the null hypothesis.The Mean thickness is different at both temperatures.
+b)Report a 95% confidence interval on the difference in means. Provide a practical interpretation of this interval.
+Solution :
+The 95 percent confidence interval:
+ -4.5404257 -0.4995743
+ The 95% confidence interval for the difference in means is between -4.540 and -0.500 kA, indicating a statistically significant distinction in photoresist thickness between the two baking temperatures. This implies that, on average, the photoresist thickness is lower at the higher baking temperature compared to the lower one. Thus, opting for the lower baking temperature may be preferable if minimizing photoresist thickness is desired.
+c)Find the power of this test for detecting an actual difference in means of 2.5 kA
+Solution : 
+```{r}
+p1 <- power.t.test(n=8,delta = 2.5)
+p1
+```
+The power of this test for detecting an actual difference in means of 2.5 kA is *0.9962561*.
+
+d)What sample size would be necessary to detect an actual difference in means of 1.5 kA
+with a power of at least 0.9?
+```{r}
+p2 <- power.t.test(delta = 1.5,power=0.9)
+p2
+```
+The sample size for the delta 1.5kA and power 0.9 is 10.40147 which approximately equals to *11*.
