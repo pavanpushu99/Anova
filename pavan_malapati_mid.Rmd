@@ -1,0 +1,67 @@
+---
+title: 'STAT 631 : Midterm 1'
+author: "Pavan Malapati"
+date: "2024-03-12"
+output: pdf_document
+---
+
+Loading the data 
+```{r}
+q1 <- read.table("strength_data")
+q2 <- read.csv("Diets.csv")
+q3 <- read.csv("cotton.csv")
+```
+```{r}
+anova_result <- aov(Weightloss ~ Diet, data = q2)
+
+# Display ANOVA table
+summary(anova_result)
+```
+
+
+Question 3 : 
+
+A product developer is investigating the tensile strength of a new synthetic fiber that will be used to make cloth for men's shirts. Strength is usually affected by the percentage of cotton used in the blend of materials for the fiber. The engineer conducts a completely randomized experiment with four levels of cotton content and replicates the experiment six times. The data are shown in the following table, and can be found in the file cotton. csv
+
+(a) (1 point) We can use polynomial regression for this dataset. Explain why briefly.
+
+**we can use polynomial regression for this dataset because we want to estimate the response at some dose other than one used in the experiment, the polynomial model provides a mechanism for generating the estimates. i.e., we are asked to investigate the tensile strength of a new synthetic fiber but the experiment is conducted on the levels of cotton content in the cloth.**
+
+(b) (2 points) What is the highest order we need to consider at first if we use a polynomial regression model? Explain why briefly.
+**The highest order we need to consider at first if we use a polynomial regression model is g-1 ., that is 4-1 which is 3. because , Due to hierarchical principle, for polynomial regression we start to test the significance from the highest order term and do it backwards. **
+
+(c) (3 points) Based on your answers in the parts (a) to (b), using R, choose a proper model for this data set. (This means, which order is the highest order in your model)?
+```{r}
+
+p0 <- lm(observations ~ 1, data = q3)
+p1 <- lm(observations ~ cwp, data = q3)
+p2 <- lm(observations ~ poly(cwp, 2), data = q3)  
+p3 <- lm(observations ~ poly(cwp, 3), data = q3) 
+
+anova(p0, p1, p2, p3)
+
+```
+```{r}
+library(knitr)
+AIC <- c(AIC(p0), AIC(p1), AIC(p2) , AIC(p3))
+kable(t(AIC),
+col.names = c("AIC(p0)", "AIC(p1)"," AIC(p2)" , "AIC(p3"))
+```
+**Since the p value for model 2 is less than 0.05 and also the AIC of the model is less compared to all the other models, we select the model 2 as our best fit.**
+
+(d) (2 points) Print out the coefficient estimates of your model in the part (c).
+```{r}
+summary(p1)
+```
+
+
+(e) (2 points) Make predictions for the mean tensile strength when the percentages of cotton used in the blend of materials for the fiber are 23 and 33. What are the values? And are your predicitions reasonable?
+
+```{r}
+pframe <- data.frame(cwp = c(23, 33))
+predict(p1, pframe, interval = "confidence")
+```
+**The mean tensile strength when the percentages of cotton used in the blend of materials for the fiber are 23 and 33 are 14.628 and 20.788. Our predictions are reasonable because they lie in between the confidence interval.** 
+
+(f) (1 point) Also, we can use orthogonal polynomial contrsts for this data set. Explain why briefly. (No R required.)
+**For this dataset, orthogonal polynomial contrasts are useful because they provide uncorrelated polynomial terms, which make it easier to understand coefficients and less complicated to deal with multicollinearity problems. This leads to more consistent and dependable results.**
