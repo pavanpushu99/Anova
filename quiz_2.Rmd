@@ -1,0 +1,128 @@
+---
+title: "STAT_631_Quiz_2"
+author: "Pavan Malapati"
+date: "2024-04-12"
+output: pdf_document
+---
+
+A research studly iswesttigated the impact of different types of fertilizer, and sunlight exposure on plant growth. The study employed a completely randomized design with sixteen experimental units. There are four fertilizer types (organic (1), synthetic (2), liquid (3), and granular (4)). and two levels of sunlight exposure (full sunlight (1) and partial shade (2)). The response variable measured is plant height in centimeters.
+
+We are interested in examining the effect of fertilizer types and levels of sunlight exposure on plant height.
+
+```{r}
+
+plant <- read.table("plant_data.txt", header = TRUE)
+
+```
+
+(a) (1 point) How many factors are in this data set?
+
+*Answer*
+There are total 2 factors in the dataset
+
+
+(b) (2 points) What are the treatments? And how many are there?
+*Answer*
+There are total 8 treatments, The combination of each fertilizer type and sunlight are the treatments. The types of fertilizer and levels of sunlight exposure are mentioned below:
+Fertilizer Types: Organic, Synthetic, Liquid, Granular
+Sunlight Exposure Levels: Full Sunlight,Partial Shade
+
+(c) (1 point) How many replicates in each treatment?
+*Answer*
+Each treatment has 2 replicates
+
+(d) (4 points) Print out the ANOVA table including the main effects and their interaction. And report your findings.
+*Answer*
+```{r}
+q1 <- aov(Height ~ Type * Sunlight, data = plant)
+q1_table <- summary(q1)
+q1_table
+```
+By the anova table we can say that only the variable type is significant by having p value less than 0.05.
+
+(e) (4 points) Provide an interaction plot to check your findings in the part (d). Does the result agree with the plot in part (d)? Explain briefly why or why not.
+*Answer*
+
+
+
+2.⁠We are interested in using a one-way ANOVA model to examine whether there is evidence of sex discrimination in wages in the US using a dataset from the Current Population Survey (CPS).
+The dataset cps. txt includes a random sample of 100 people from the CPS, with information on hourly wage (wage) and sex of the worker (sex, Female or Male).
+*Answer*
+```{r}
+cps <- read.table("cps.txt", header = TRUE)
+```
+
+(a) (3 points) Print out the ANOVA table for the data set. And report your findings.
+*Answer*
+```{r}
+anova <- aov(wage ~ sex, data = cps)
+summary(anova)
+```
+By looking at the ANOVA table we can say that there is evidence of sex discrimination in wages in the US, because the p value is less than 0.05.
+
+(b) (4 points) Provide a plot for checking the equal variance assumption. Report your finding and perform a test to confirm your finding. 
+*Answer*
+```{r}
+plot(anova, 1)
+```
+By looking at the plot we cannot say that there is no equal variance since the points are not scattered and shows a pattern. 
+
+```{r}
+library(car)
+levene_test <- leveneTest(anova)
+levene_test
+```
+The levene test for equal variance confirms that there is equal variance by giving a p value greater than 0.05.
+
+(c) (4 points) Phovide a plot for checking the normality assumption. Report your finding and perform a test to confirm your finding.
+*Answer*
+```{r}
+plot(anova, 2)
+```
+From the plot we can interpret that there is no normality because the points are deviating from the line.
+
+```{r}
+shapiro_test <- shapiro.test(residuals(anova))
+shapiro_test
+```
+The shapiro test also confirms that the normality assumption is not satisfied by the p value less than 0.05.
+
+(d) (3 points) Using the powerTransform) function, decide the transformation for the response. Which transformaton is needed
+*Answer*
+```{r}
+trans <- powerTransform(wage ~ sex, data = cps)
+trans
+```
+Since the lamda is close to 0 we can use the log transformation.
+
+(e) (4 points) Refit the model after taking the transformation that you chose in part (d). Print out the ANOVA table. Do you still have the same concusion as in part (a) Explain briefly.
+*Answer*
+```{r}
+transform_model <- aov(log(wage) ~ sex, data = cps)
+summary(transform_model)
+
+```
+Yes, we still have the same conclusion as part a. because the p value is even more lessthan 0.05 .
+
+(f) (3 points) Check the normality and equal variance assumptions of your model in part (e).
+Any violations?
+*Answer*
+```{r}
+plot(transform_model , 1)
+plot(transform_model , 2)
+```
+After performing the transformation we can see that both the assumptions normality and equal variance are satisfied.
+
+(g) (2 points) Calculate the estimated ratio of the medians of wages of females and males.
+Whose wage is how much higher?
+*Answer*
+```{r}
+median_f <- median(cps$wage[cps$sex == "Female"])
+median_f
+median_m <- median(cps$wage[cps$sex == "Male"])
+median_m
+ratio_medians <- median_f / median_m
+ratio_medians
+```
+By the median we can say that the wage of male is 9.56 and female is 8 . The estimated ratio of medians of wages of females and males is 0.8368
+
